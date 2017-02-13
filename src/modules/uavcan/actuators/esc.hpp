@@ -45,7 +45,30 @@
 #pragma once
 
 #include <uavcan/uavcan.hpp>
+
+#define FOC_ESC_USED 1
+
+#if FIRMWARENAME == ArduCopter
+#define COPTER_USED 1
+#endif
+
+#ifdef FOC_ESC_USED
+#define FOC_ESC_RPM_CTL_TYPE 1
+#define PROPELLER_RELOCATE_ENABLE 1
+#define ESC_RGBLED_ENABLE 1
+#endif
+
+#ifdef FOC_ESC_RPM_CTL_TYPE
+#include <uavcan/equipment/esc/RPMCommand.hpp>
+#else
 #include <uavcan/equipment/esc/RawCommand.hpp>
+#endif
+#ifdef PROPELLER_RELOCATE_ENABLE
+#include <uavcan/equipment/esc/PropRelocCommand.hpp>
+#endif
+#ifdef ESC_RGBLED_ENABLE
+#include <uavcan/equipment/esc/VehicleRGB.hpp>
+#endif
 #include <uavcan/equipment/esc/Status.hpp>
 #include <systemlib/perf_counter.h>
 #include <uORB/topics/esc_status.h>
@@ -60,6 +83,7 @@ public:
 	int init();
 
 	void update_outputs(float *outputs, unsigned num_outputs);
+	void update_rgb_status(uint8_t rgb_status);
 
 	void arm_all_escs(bool arm);
 	void arm_single_esc(int num, bool arm);
@@ -76,7 +100,8 @@ private:
 	void orb_pub_timer_cb(const uavcan::TimerEvent &event);
 
 
-	static constexpr unsigned MAX_RATE_HZ = 200;			///< XXX make this configurable
+	// static constexpr unsigned MAX_RATE_HZ = 200;			///< XXX make this configurable
+	static constexpr unsigned MAX_RATE_HZ = 30;			///< XXX make this configurable
 	static constexpr unsigned ESC_STATUS_UPDATE_RATE_HZ = 10;
 	static constexpr unsigned UAVCAN_COMMAND_TRANSFER_PRIORITY = 5;	///< 0..31, inclusive, 0 - highest, 31 - lowest
 
@@ -96,7 +121,17 @@ private:
 	 */
 	uavcan::MonotonicTime							_prev_cmd_pub;   ///< rate limiting
 	uavcan::INode								&_node;
-	uavcan::Publisher<uavcan::equipment::esc::RawCommand>			_uavcan_pub_raw_cmd;
+	#ifdef FOC_ESC_RPM_CTL_TYPE
+		uavcan::Publisher<uavcan::equipment::esc::RPMCommand>			_uavcan_pub_rpm_cmd;
+	#else
+		uavcan::Publisher<uavcan::equipment::esc::RawCommand>			_uavcan_pub_raw_cmd;
+	#endif
+	#ifdef PROPELLER_RELOCATE_ENABLE
+		uavcan::Publisher<uavcan::equipment::esc::PropRelocCommand>			_uavcan_pub_prop_reloc_cmd;
+	#endif
+	#ifdef ESC_RGBLED_ENABLE
+	uavcan::Publisher<uavcan::equipment::esc::VehicleRGB>			_uavcan_pub_rgb_status_cmd;
+	#endif
 	uavcan::Subscriber<uavcan::equipment::esc::Status, StatusCbBinder>	_uavcan_sub_status;
 	uavcan::TimerEventForwarder<TimerCbBinder>				_orb_timer;
 

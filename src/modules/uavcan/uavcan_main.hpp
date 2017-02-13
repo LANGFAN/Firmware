@@ -60,6 +60,7 @@
 #include <uORB/topics/actuator_armed.h>
 #include <uORB/topics/test_motor.h>
 #include <uORB/topics/actuator_direct.h>
+#include <uORB/topics/vehicle_rgb_status.h>
 
 #include "actuators/esc.hpp"
 #include "actuators/hardpoint.hpp"
@@ -82,7 +83,8 @@ static constexpr unsigned UAVCANIOC_HARDPOINT_SET = _PX4_IOC(UAVCANIOCBASE, 0x10
  */
 class UavcanNode : public device::CDev
 {
-	static constexpr unsigned MaxBitRatePerSec	= 1000000;
+	static constexpr unsigned MaxBitRatePerSec	= 500000;
+	// static constexpr unsigned MaxBitRatePerSec	= 1000000;
 	static constexpr unsigned bitPerFrame		= 148;
 	static constexpr unsigned FramePerSecond	= MaxBitRatePerSec / bitPerFrame;
 	static constexpr unsigned FramePerMSecond	= ((FramePerSecond / 1000) + 1);
@@ -177,6 +179,9 @@ private:
 	int			_test_motor_sub = -1;   ///< uORB subscription of the test_motor status
 	test_motor_s		_test_motor = {};
 	bool			_test_in_progress = false;
+
+	int _rgb_status_sub = -1;			///< uORB subscription of the vehicle rgb led status
+	vehicle_rgb_status_s _rgb_status_s = {};
 
 	unsigned		_output_count = 0;		///< number of actuators currently available
 

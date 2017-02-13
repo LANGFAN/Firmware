@@ -80,6 +80,8 @@
 /** set pattern */
 #define RGBLED_SET_PATTERN		_RGBLEDIOC(7)
 
+/** set rgb status from apm */
+#define RGBLED_SET_RGBSTATUS		_RGBLEDIOC(8)
 
 /*
   structure passed to RGBLED_SET_RGB ioctl()

@@ -65,6 +65,8 @@
 
 #include <drivers/drv_rgbled.h>
 
+#include <uORB/topics/vehicle_rgb_status.h>
+
 #define RGBLED_ONTIME 120
 #define RGBLED_OFFTIME 120
 
@@ -109,6 +111,9 @@ private:
 	int			_counter;
 	int			_param_sub;
 
+	struct vehicle_rgb_status_s _rgb_status_s;
+	orb_advert_t	_rgb_status_pub;			/**< rgb status */
+
 	void 			set_color(rgbled_color_t ledcolor);
 	void			set_mode(rgbled_mode_t mode);
 	void			set_pattern(rgbled_pattern_t *pattern);
@@ -120,6 +125,8 @@ private:
 	int			send_led_rgb();
 	int			get(bool &on, bool &powersave, uint8_t &r, uint8_t &g, uint8_t &b);
 	void		update_params();
+
+	void rgb_status_publish(uint8_t rgb_status);
 };
 
 /* for now, we only support one RGBLED */
@@ -148,7 +155,8 @@ RGBLED::RGBLED(int bus, int rgbled) :
 	_led_interval(0),
 	_should_run(false),
 	_counter(0),
-	_param_sub(-1)
+	_param_sub(-1),
+	_rgb_status_pub(nullptr)
 {
 	memset(&_work, 0, sizeof(_work));
 	memset(&_pattern, 0, sizeof(_pattern));
@@ -255,6 +263,11 @@ RGBLED::ioctl(device::file_t *filp, int cmd, unsigned long arg)
 	case RGBLED_SET_PATTERN:
 		/* set a special pattern */
 		set_pattern((rgbled_pattern_t *)arg);
+		return OK;
+
+	case RGBLED_SET_RGBSTATUS:
+		/* set a special pattern */
+		rgb_status_publish((uint8_t)arg);
 		return OK;
 
 	default:
@@ -577,6 +590,18 @@ RGBLED::send_led_rgb()
 		SUB_ADDR_PWM2, static_cast<uint8_t>((_r >> 4) * _brightness * _max_brightness + 0.5f)
 	};
 	return transfer(msg, sizeof(msg), nullptr, 0);
+}
+
+void RGBLED::rgb_status_publish(uint8_t rgb_status)
+{
+	_rgb_status_s.rgb_status = rgb_status;
+	// _rgb_status_s.rgb_status_changed = true;
+
+	if(_rgb_status_pub != nullptr){
+		orb_publish(ORB_ID(vehicle_rgb_status), _rgb_status_pub, &_rgb_status_s);
+	} else {
+		_rgb_status_pub = orb_advertise(ORB_ID(vehicle_rgb_status), &_rgb_status_s);
+	}
 }
 
 int

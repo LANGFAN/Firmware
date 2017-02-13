@@ -288,3 +288,8 @@ ORB_DEFINE(mavlink_log, struct mavlink_log_s);
 
 #include "topics/follow_target.h"
 ORB_DEFINE(follow_target, struct follow_target_s);
+
+#include "topics/vehicle_rgb_status.h"
+ORB_DEFINE(vehicle_rgb_status, struct vehicle_rgb_status_s);
+
+

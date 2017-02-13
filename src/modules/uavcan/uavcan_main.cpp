@@ -150,6 +150,7 @@ UavcanNode::~UavcanNode()
 	(void)::close(_armed_sub);
 	(void)::close(_test_motor_sub);
 	(void)::close(_actuator_direct_sub);
+	(void)::close(_rgb_status_sub);
 
 	// Removing the sensor bridges
 	auto br = _sensor_bridges.getHead();
@@ -769,6 +770,7 @@ int UavcanNode::run()
 	_armed_sub = orb_subscribe(ORB_ID(actuator_armed));
 	_test_motor_sub = orb_subscribe(ORB_ID(test_motor));
 	_actuator_direct_sub = orb_subscribe(ORB_ID(actuator_direct));
+	_rgb_status_sub = orb_subscribe(ORB_ID(vehicle_rgb_status));
 
 	memset(&_outputs, 0, sizeof(_outputs));
 
@@ -979,6 +981,17 @@ int UavcanNode::run()
 			bool set_armed = _armed.armed && !_armed.lockdown && !_test_in_progress;
 
 			arm_actuators(set_armed);
+		}
+
+		// Check rgb status sent by rgbled.cpp
+		// see apm/libraries/AP_Notify/ToshibaLED_PX4.cpp for detail
+		orb_check(_rgb_status_sub, &updated);
+
+		if (updated) {
+			orb_copy(ORB_ID(vehicle_rgb_status), _rgb_status_sub, &_rgb_status_s);
+
+			// update rgb led status from apm
+			_esc_controller.update_rgb_status(_rgb_status_s.rgb_status);
 		}
 	}
 
@@ -1302,7 +1315,8 @@ int uavcan_main(int argc, char *argv[])
 		}
 
 		// CAN bitrate
-		int32_t bitrate = 1000000;
+		int32_t bitrate = 500000;
+		// int32_t bitrate = 1000000;
 		(void)param_get(param_find("UAVCAN_BITRATE"), &bitrate);
 
 		// Start
