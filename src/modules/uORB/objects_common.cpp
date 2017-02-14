@@ -57,6 +57,20 @@ ORB_DEFINE(sensor_gyro, struct sensor_gyro_s);
 #include "topics/sensor_baro.h"
 ORB_DEFINE(sensor_baro, struct sensor_baro_s);
 
+
+#include "topics/shoubei_sensor_mag.h"
+ORB_DEFINE(shoubei_sensor_mag, struct shoubei_sensor_mag_s);
+
+#include "topics/shoubei_sensor_accel.h"
+ORB_DEFINE(shoubei_sensor_accel, struct shoubei_sensor_accel_s);
+
+#include "topics/shoubei_sensor_gyro.h"
+ORB_DEFINE(shoubei_sensor_gyro, struct shoubei_sensor_gyro_s);
+
+#include "topics/shoubei_sensor_baro.h"
+ORB_DEFINE(shoubei_sensor_baro, struct shoubei_sensor_baro_s);
+
+
 #include "topics/output_pwm.h"
 ORB_DEFINE(output_pwm, struct output_pwm_s);
 

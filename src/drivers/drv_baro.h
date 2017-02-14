@@ -53,6 +53,8 @@
 #include <uORB/topics/sensor_baro.h>
 #define baro_report sensor_baro_s
 
+#define UAVCAN_BARO_BASE_DEVICE_PATH  "/dev/uavcan/baro"
+
 /*
  * ioctl() definitions
  */

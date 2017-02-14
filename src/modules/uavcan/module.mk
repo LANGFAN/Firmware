@@ -52,8 +52,10 @@ SRCS += actuators/esc.cpp \
 # Sensors
 SRCS += sensors/sensor_bridge.cpp   \
         sensors/gnss.cpp            \
-        sensors/mag.cpp             \
-        sensors/baro.cpp
+        sensors/shoubei_baro.cpp    \
+        sensors/shoubei_gyro.cpp    \
+        sensors/shoubei_mag.cpp     \
+        sensors/shoubei_accel.cpp
 
 #
 # libuavcan

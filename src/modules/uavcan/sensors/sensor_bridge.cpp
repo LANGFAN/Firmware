@@ -39,17 +39,21 @@
 #include <cassert>
 
 #include "gnss.hpp"
-#include "mag.hpp"
-#include "baro.hpp"
+#include "shoubei_gyro.hpp"
+#include "shoubei_mag.hpp"
+#include "shoubei_accel.hpp"
+#include "shoubei_baro.hpp"
 
 /*
  * IUavcanSensorBridge
  */
 void IUavcanSensorBridge::make_all(uavcan::INode &node, List<IUavcanSensorBridge *> &list)
 {
-	list.add(new UavcanBarometerBridge(node));
-	list.add(new UavcanMagnetometerBridge(node));
+	list.add(new UavcanBaroBridge(node));
 	list.add(new UavcanGnssBridge(node));
+	list.add(new UavcanGyroBridge(node));
+	list.add(new UavcanMagBridge(node));
+	list.add(new UavcanAccelBridge(node));
 }
 
 /*
